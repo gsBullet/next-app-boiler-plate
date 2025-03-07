@@ -1,7 +1,11 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import React, { useContext } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-const nav = () => {
+import { AuthContext } from "@/app/authContext/authContext";
+const Nav = () => {
+  const { isAuthenticated, logout } = useContext(AuthContext);
+
   return (
     <div className="container">
       <nav className="navbar navbar-expand-lg bg-light">
@@ -37,22 +41,33 @@ const nav = () => {
                   Contact
                 </Link>
               </li>
-
-              <li className="nav-item">
-                <Link className="nav-link" href="/login">
-                  login
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link href="/signup" className="nav-link">
-                  Signup
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link href={"/dashboard"} className="nav-link ">
-                  dashboard
-                </Link>
-              </li>
+              {isAuthenticated.checkAuth ? (
+                <>
+                  <li className="nav-item">
+                    <Link href={"/dashboard"} className="nav-link ">
+                      dashboard
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <button className="nav-link" onClick={logout}>
+                      Logout
+                    </button>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" href="/login">
+                      login
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link href="/signup" className="nav-link">
+                      Signup
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
             <form className="d-flex" role="search">
               <input
@@ -72,4 +87,4 @@ const nav = () => {
   );
 };
 
-export default nav;
+export default Nav;

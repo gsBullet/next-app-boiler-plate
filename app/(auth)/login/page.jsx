@@ -1,29 +1,52 @@
-"use client"
-import React from "react";
+"use client";
+import React, { useContext, useEffect } from "react";
 import axios from "axios";
 import baseURL from "@/app/url/baseUrl";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import  { Metadata } from "next";
-
-// export const metadata = {
-//   title: "Login",
-//   description: "Login",
-// };
+import { AuthContext } from "@/app/authContext/authContext";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
-  const loginHadler = async (e) => {
+  const router = useRouter();
+  const { isAuthenticated, setIsAuthenticated } = useContext(AuthContext);
+  // console.log(isAuthenticated);
+  
+
+  useEffect(() => {
+    if (isAuthenticated?.checkAuth) {
+      router.push("/dashboard");
+    } else if (isAuthenticated.checkAuth === false) {
+      router.push("/login");
+    } else {
+    }
+  }, [isAuthenticated]);
+
+  const loginHandler = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    const response = await axios.post(`${baseURL}/users/login`, formData);
-    if (response.status === 200) {
-      window.localStorage.setItem("todoToken", response.data.token);
+    try {
+      const response = await axios.post(`${baseURL}/users/login`, formData);
+      // console.log(response);
+      
 
-      console.log("Logged in successfully!");
-    } else {
-      console.log("Something went wrong. Please try again.");
+      if (response.status === 200) {
+        window.localStorage.setItem("todoToken", response?.data?.token);
+
+        setIsAuthenticated({
+          checkAuth: true,
+          todoToken: response?.data?.token,
+        });
+        // router.push("/dashboard");
+        console.log("Logged in successfully!");
+      } else {
+        console.log("Something went wrong. Please try again.");
+      }
+    } catch (error) {
+      console.error("Login failed:", error.message);
     }
   };
+
   return (
     <div className="continer mt-5">
       <main className="min-vh-100 container">
@@ -33,7 +56,7 @@ const Login = () => {
               <h2 className="text-center">login</h2>
             </div>
             <div className="card-body">
-              <form onSubmit={loginHadler}>
+              <form onSubmit={loginHandler}>
                 <div className="form-group">
                   <label htmlFor="email">Email</label>
                   <input

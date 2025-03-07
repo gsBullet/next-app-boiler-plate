@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 // import "./globals.css";
 import Header from "./homeLayouts/header";
 import Footer from "./homeLayouts/footer";
+import { AuthProvider } from "../authContext/authContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,9 +37,11 @@ export default function HomeLayout({
         suppressHydrationWarning={true}
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Header />
-        {children}
-        <Footer />
+        <AuthProvider>
+          <Header />
+          {children}
+          <Footer />
+        </AuthProvider>
         <script
           src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
           async

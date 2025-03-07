@@ -1,3 +1,5 @@
+import { AuthProvider } from "../authContext/authContext";
+
 export const metadata = {
   title: "Dashboard",
   description: "Dashboard",
@@ -16,7 +18,9 @@ export default function DashboardLayout({
           async
         ></script>
       </head>
-      <body suppressHydrationWarning={true}>{children}</body>
+      <body suppressHydrationWarning={true}>
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

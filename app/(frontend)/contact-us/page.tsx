@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 const ContactUs = () => {
-  return <div>ContactUs</div>;
+  return <div className="min-vh-100 container">ContactUs</div>;
 };
 
 export default ContactUs;

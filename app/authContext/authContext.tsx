@@ -1,95 +1,71 @@
 "use client";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
-import axios from "axios";
-import { createContext, useState, ReactNode, useEffect } from "react";
-import baseURL from "../url/baseUrl";
+import api from "../url/baseUrl";
 
-interface UserInfo {
-  // Define your user info type based on your API response
-  id: string;
-  user_id: number;
-  username: string;
-  email: string;
-  image: string;
-  // Add other properties as needed
-}
+type AuthContextType = {
+  // isAuthenticated: boolean;
 
-interface AuthState {
-  checkAuth: boolean;
-  todoToken?: string;
-}
+  user: null | { id: number; email: string; user_id: number; image: string };
+  isLoading: boolean;
 
-interface AuthContextType {
-  isAuthenticated: AuthState;
-  setIsAuthenticated: React.Dispatch<React.SetStateAction<AuthState>>;
-  userInfo: UserInfo | null;
-  setUserInfo: React.Dispatch<React.SetStateAction<UserInfo | null>>;
   logout: () => void;
-}
+};
 
-export const AuthContext = createContext<AuthContextType>(
-  {} as AuthContextType
-);
+const AuthContext = createContext<AuthContextType>({
+  // isAuthenticated: false,
+  user: null,
+  isLoading: true,
+  logout: () => {},
+});
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<AuthState>({
-    checkAuth: false,
-    todoToken: undefined,
-  });
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-
-  const logout = () => {
-    setIsAuthenticated({
-      checkAuth: false,
-      todoToken: undefined,
-    });
-    window.localStorage.removeItem("todoToken");
-  };
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const router = useRouter();
+  const [user, setUser] = useState<null | {
+    id: number;
+    email: string;
+    user_id: number;
+    image: string;
+  }>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
-      
-     
       try {
-        const response = await axios.get<{ userInfo: UserInfo }>(
-          `${baseURL}/users/check-auth`,
-          {
-            headers: {
-              Authorization: `todoToken ${window.localStorage.getItem("todoToken")}`,
-            },
-          }
-        );
+        const token = localStorage.getItem("authToken");
+
+        const response = await api.get("users/check-auth", {
+          headers: { Authorization: `authToken ${token}` },
+        });
 
         if (response.status === 200) {
-          setIsAuthenticated({
-            checkAuth: true,
-            
-          });
-          setUserInfo(response.data.userInfo);
+          setUser(response.data.userInfo);
+          setIsLoading(false);
+        } else {
+          setIsLoading(false);
+          setUser(null);
         }
-      } catch (error) {
-        console.error("Authentication check failed", error);
+ 
+      } catch {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
   }, []);
 
-  // console.log(`isAuthenticated`, isAuthenticated);
-  console.log(`userInfo`, userInfo);
-  
+  const logout = () => {
+    localStorage.removeItem("authToken");
+    setUser(null);
+    router.push("/");
+  };
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        setIsAuthenticated,
-        logout,
-        userInfo,
-        setUserInfo,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
+
+export const useAuth = () => useContext(AuthContext);

@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
-import React, { useContext } from "react";
+import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { AuthContext } from "@/app/authContext/authContext";
+import {  useAuth } from "@/app/authContext/authContext";
 const Nav = () => {
-  const { isAuthenticated, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
 
   return (
     <div className="container">
@@ -41,7 +41,7 @@ const Nav = () => {
                   Contact
                 </Link>
               </li>
-              {isAuthenticated.checkAuth ? (
+              {user ? (
                 <>
                   <li className="nav-item">
                     <Link href={"/dashboard"} className="nav-link ">
